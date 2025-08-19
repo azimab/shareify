@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  spotifyId   String   @unique
+  displayName String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  weeklySelections WeeklySelection[]
+  ownedPlaylists   WeeklyPlaylist[]
+  
+  // Friendships where this user is the follower
+  following Friendship[] @relation("UserFollowing")
+  // Friendships where this user is being followed
+  followers Friendship[] @relation("UserFollowers")
+
+  @@map("users")
+}
+
+model Friendship {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate friendships and self-following
+  @@unique([followerId, followingId])
+  @@map("friendships")
+}
+
+model WeeklySelection {
+  id        String   @id @default(cuid())
+  userId    String
+  weekStart DateTime // Start of the week (e.g., Monday 00:00)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracks TrackSelection[]
+
+  // One selection per user per week
+  @@unique([userId, weekStart])
+  @@map("weekly_selections")
+}
+
+model TrackSelection {
+  id               String   @id @default(cuid())
+  weeklySelectionId String
+  spotifyTrackId   String
+  title            String
+  artist           String
+  album            String?
+  image            String?
+  uri              String?
+  addedAt          DateTime @default(now())
+
+  // Relations
+  weeklySelection WeeklySelection @relation(fields: [weeklySelectionId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate tracks in the same weekly selection
+  @@unique([weeklySelectionId, spotifyTrackId])
+  @@map("track_selections")
+}
+
+model WeeklyPlaylist {
+  id              String   @id @default(cuid())
+  weekStart       DateTime
+  spotifyPlaylistId String?
+  ownerUserId     String
+  url             String?
+  name            String?
+  description     String?
+  trackCount      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  owner User @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  // One playlist per week per owner
+  @@unique([weekStart, ownerUserId])
+  @@map("weekly_playlists")
+}
