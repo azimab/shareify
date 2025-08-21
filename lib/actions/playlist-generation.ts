@@ -56,11 +56,15 @@ export async function generateWeeklyPlaylist() {
       },
     })
 
-    // Get all user IDs (friends + self)
-    const userIds = new Set([session.userId])
+    // Get all friend user IDs (exclude self from playlist)
+    const userIds = new Set<string>()
     friendships.forEach((friendship) => {
-      userIds.add(friendship.followerId)
-      userIds.add(friendship.followingId)
+      // Add the other person in the friendship (not the current user)
+      if (friendship.followerId === session.userId) {
+        userIds.add(friendship.followingId)
+      } else {
+        userIds.add(friendship.followerId)
+      }
     })
 
     // Get all tracks for this week from friends
@@ -75,13 +79,46 @@ export async function generateWeeklyPlaylist() {
       },
     })
 
-    const trackUris = selections.flatMap((selection) =>
-      selection.tracks.map((track) => track.uri).filter(Boolean)
+    // Get friend tracks
+    const friendTracks = selections.flatMap((selection) =>
+      selection.tracks.map((track) => ({
+        uri: track.uri,
+        title: track.title,
+        artist: track.artist,
+        isRecommendation: false
+      })).filter(track => track.uri)
     )
 
-    if (trackUris.length === 0) {
+    if (friendTracks.length === 0) {
       throw new Error("No tracks found for this week")
     }
+
+    // Auto-add recommendations if we have friend songs but fewer than 20 total
+    let allTracks = [...friendTracks]
+    if (friendTracks.length > 0 && friendTracks.length < 20) {
+      try {
+        const { generateRecommendations } = await import("./recommendations")
+        const recommendations = await generateRecommendations()
+        
+        const neededCount = 20 - friendTracks.length
+        const recommendedTracks = recommendations
+          .slice(0, neededCount)
+          .map(rec => ({
+            uri: rec.uri,
+            title: rec.title,
+            artist: rec.artist,
+            isRecommendation: true
+          }))
+          .filter(track => track.uri)
+        
+        allTracks = [...friendTracks, ...recommendedTracks]
+      } catch (error) {
+        console.error("Failed to add recommendations:", error)
+        // Continue with just friend tracks if recommendations fail
+      }
+    }
+
+    const trackUris = allTracks.map(track => track.uri).filter(Boolean)
 
     let playlistId: string
     let playlistUrl: string
@@ -133,7 +170,7 @@ export async function generateWeeklyPlaylist() {
           },
           body: JSON.stringify({
             name: `SocialSpot - ${weekRange}`,
-            description: `Weekly collaborative playlist from your music circle for ${weekRange}`,
+            description: `Weekly collaborative playlist from your music circle for ${weekRange}. ${allTracks.length > friendTracks.length ? `Includes ${allTracks.length - friendTracks.length} auto-recommended songs.` : ''}`,
             public: false,
           }),
         }
@@ -174,7 +211,7 @@ export async function generateWeeklyPlaylist() {
         url: playlistUrl,
         trackCount: trackUris.length,
         name: `SocialSpot - ${weekRange}`,
-        description: `Weekly collaborative playlist from your music circle for ${weekRange}`,
+        description: `Weekly collaborative playlist from your music circle for ${weekRange}. ${allTracks.length > friendTracks.length ? `Includes ${allTracks.length - friendTracks.length} auto-recommended songs.` : ''}`,
       },
       create: {
         weekStart,
@@ -183,11 +220,17 @@ export async function generateWeeklyPlaylist() {
         url: playlistUrl,
         trackCount: trackUris.length,
         name: `SocialSpot - ${weekRange}`,
-        description: `Weekly collaborative playlist from your music circle for ${weekRange}`,
+        description: `Weekly collaborative playlist from your music circle for ${weekRange}. ${allTracks.length > friendTracks.length ? `Includes ${allTracks.length - friendTracks.length} auto-recommended songs.` : ''}`,
       },
     })
 
-    return { success: true, playlistUrl, trackCount: trackUris.length }
+    return { 
+      success: true, 
+      playlistUrl, 
+      trackCount: trackUris.length,
+      friendTrackCount: friendTracks.length,
+      recommendedTrackCount: allTracks.length - friendTracks.length
+    }
   } catch (error) {
     console.error("Failed to generate weekly playlist:", error)
     throw new Error(error instanceof Error ? error.message : "Failed to generate playlist")

@@ -197,6 +197,8 @@ function MainApp() {
         setCurrentWeekTracks(tracks)
       } catch (error) {
         console.error("Failed to save selection:", error)
+        // Show user-friendly error message
+        alert(`Failed to save song: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your connection and try again.`)
         // Revert on error
         setSelectedSongs(selectedSongs)
       } finally {

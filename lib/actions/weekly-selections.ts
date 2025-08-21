@@ -138,11 +138,15 @@ export async function getCurrentWeekTracks() {
       },
     })
 
-    // Get all user IDs (friends + self)
-    const userIds = new Set([session.userId])
+    // Get all friend user IDs (exclude self from the feed)
+    const userIds = new Set<string>()
     friendships.forEach((friendship) => {
-      userIds.add(friendship.followerId)
-      userIds.add(friendship.followingId)
+      // Add the other person in the friendship (not the current user)
+      if (friendship.followerId === session.userId) {
+        userIds.add(friendship.followingId)
+      } else {
+        userIds.add(friendship.followerId)
+      }
     })
 
     // Get all weekly selections for this week from friends
