@@ -13,6 +13,50 @@ function getWeekStart(date: Date = new Date()): Date {
   return monday
 }
 
+async function generateSeedRecommendations(accessToken: string): Promise<RecommendationTrack[]> {
+  // Popular artists across different genres for new users
+  const seedArtists = [
+    'Taylor Swift', 'Drake', 'The Weeknd', 'Billie Eilish', 'Post Malone',
+    'Ariana Grande', 'Ed Sheeran', 'Dua Lipa', 'Bad Bunny', 'Olivia Rodrigo',
+    'Harry Styles', 'Doja Cat', 'Justin Bieber', 'The Beatles', 'Queen'
+  ]
+  
+  const recommendations: RecommendationTrack[] = []
+  
+  for (const artist of seedArtists.slice(0, 5)) { // Use first 5 artists
+    try {
+      const searchResponse = await fetch(
+        `https://api.spotify.com/v1/search?q=artist:"${encodeURIComponent(artist)}"&type=track&limit=4`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      )
+      
+      if (searchResponse.ok) {
+        const searchData = await searchResponse.json()
+        const tracks = searchData.tracks.items
+        
+        for (const track of tracks) {
+          recommendations.push({
+            id: track.id,
+            title: track.name,
+            artist: track.artists[0]?.name || 'Unknown',
+            album: track.album?.name,
+            image: track.album?.images?.[0]?.url,
+            uri: track.uri,
+            score: 50,
+            reason: `Popular track to get you started`
+          })
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to get seed recommendations for ${artist}:`, error)
+    }
+  }
+  
+  return recommendations.slice(0, 20)
+}
+
 export interface RecommendationTrack {
   id: string
   title: string
@@ -50,8 +94,9 @@ export async function generateRecommendations(): Promise<RecommendationTrack[]> 
       }
     })
 
+    // If no friends yet, use some popular artists as seed data
     if (friendIds.size === 0) {
-      return []
+      return await generateSeedRecommendations(session.accessToken)
     }
 
     // Get friends' historical selections (last 4 weeks)
@@ -105,7 +150,7 @@ export async function generateRecommendations(): Promise<RecommendationTrack[]> 
 
     // Find popular artists among friends
     const popularArtists = Array.from(artistFrequency.entries())
-      .filter(([_, data]) => data.friends.size >= 2) // At least 2 friends like this artist
+      .filter(([_, data]) => data.friends.size >= 1) // At least 1 friend likes this artist
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 10)
 

@@ -35,94 +35,112 @@ export default function RootPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500/10 rounded-full animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/10 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/5 rounded-full animate-ping delay-2000"></div>
-      </div>
-
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="relative z-10 border-b border-gray-800/50 bg-gray-900/20 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/20 rounded-none border border-green-500/30">
-                <Music className="h-8 w-8 text-green-400" />
-              </div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                Shareify
-              </h1>
-            </div>
+      <header className="border-b border-gray-800">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Music className="h-7 w-7 text-green-500" />
+            <h1 className="text-2xl font-bold text-white">Shareify</h1>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-12">
-          {/* Hero Section */}
-          <div className="space-y-8">
-            <h2 className="text-5xl md:text-7xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-white via-green-200 to-green-400 bg-clip-text text-transparent">
-                Music that brings
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                friends together
-              </span>
-            </h2>
+      <main className="max-w-6xl mx-auto px-6 py-16">
+        {/* Hero Section */}
+        <div className="max-w-4xl mb-20">
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            Your social replacement for Discover Weekly
+          </h2>
+          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+            Tired of Spotify's algorithm recommending the same songs? Get music recommendations from your friends instead. 
+            Share 3 songs weekly, discover what your friends are listening to, and get personalized playlists based on real human taste.
+          </p>
+          <Button
+            onClick={() => signIn("spotify")}
+            className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 text-lg font-medium transition-colors"
+          >
+            <SpotifyIcon />
+            <span className="ml-3">Connect Spotify</span>
+          </Button>
+        </div>
 
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Share your favorite songs with friends every week and discover new music through
-              <span className="text-green-400 font-semibold"> collaborative playlists</span> that evolve with your
-              circle.
-            </p>
+        {/* How it Works */}
+        <div className="mb-20">
+          <h3 className="text-2xl font-bold text-white mb-12">How it works</h3>
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="space-y-4">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">1</div>
+              <h4 className="text-xl font-semibold text-white">Pick your weekly songs</h4>
+              <p className="text-gray-400">Choose 1-3 songs you're loving this week. Could be anything - new discoveries, old favorites, guilty pleasures.</p>
+            </div>
+            <div className="space-y-4">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">2</div>
+              <h4 className="text-xl font-semibold text-white">See what friends picked</h4>
+              <p className="text-gray-400">Browse through your friends' weekly picks. Discover new artists, genres, and songs you never would have found otherwise.</p>
+            </div>
+            <div className="space-y-4">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">3</div>
+              <h4 className="text-xl font-semibold text-white">Get your playlist</h4>
+              <p className="text-gray-400">We create a Spotify playlist combining your friends' picks plus smart recommendations based on their taste.</p>
+            </div>
           </div>
+        </div>
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mt-16">
-            {[
-              {
-                icon: "🎵",
-                title: "Weekly Picks",
-                description: "Choose 1-3 songs each week to share with your friends",
-              },
-              {
-                icon: "👥",
-                title: "Friend Circle",
-                description: "Connect with friends and discover their musical taste",
-              },
-              {
-                icon: "🎧",
-                title: "Auto Playlists",
-                description: "Get curated playlists from everyone's weekly selections",
-              },
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className="p-6 bg-gray-800/30 border border-gray-700/50 rounded-none backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:scale-105"
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
+        {/* Why Better Than Algorithms */}
+        <div className="mb-20">
+          <h3 className="text-2xl font-bold text-white mb-8">Why friends > algorithms</h3>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h4 className="text-lg font-semibold text-white">Real human curation</h4>
+                <p className="text-gray-400">Your friends know good music. They have context, emotions, and stories behind their picks that no algorithm can match.</p>
               </div>
-            ))}
+              <div className="space-y-2">
+                <h4 className="text-lg font-semibold text-white">Break out of your bubble</h4>
+                <p className="text-gray-400">Algorithms keep you in the same genres. Friends introduce you to completely new styles of music you'd never discover alone.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-lg font-semibold text-white">Social connection</h4>
+                <p className="text-gray-400">Music is social. Share discoveries, discuss songs, and bond over new finds with the people who matter most.</p>
+              </div>
+            </div>
+            <div className="bg-gray-900 p-6 rounded-lg">
+              <h4 className="text-lg font-semibold text-white mb-4">What you get every week:</h4>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Fresh playlist with friends' picks
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Smart recommendations based on group taste
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  See who recommended what
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Discover new artists and genres
+                </li>
+              </ul>
+            </div>
           </div>
+        </div>
 
-          {/* CTA Section */}
-          <div className="space-y-6 pt-12">
-            <Button
-              onClick={() => signIn("spotify")}
-              className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 text-lg font-semibold rounded-none border-2 border-green-500 hover:border-green-400 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-            >
-              <SpotifyIcon />
-              <span className="ml-3">Login with Spotify</span>
-            </Button>
-
-            <p className="text-sm text-gray-500">Connect your Spotify account to start sharing music with friends</p>
-          </div>
+        {/* CTA */}
+        <div className="text-center py-12">
+          <h3 className="text-3xl font-bold text-white mb-4">Ready to discover better music?</h3>
+          <p className="text-gray-400 mb-8">Join your friends and start sharing music that actually matters.</p>
+          <Button
+            onClick={() => signIn("spotify")}
+            className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 text-lg font-medium transition-colors"
+          >
+            <SpotifyIcon />
+            <span className="ml-3">Get Started with Spotify</span>
+          </Button>
         </div>
       </main>
     </div>
