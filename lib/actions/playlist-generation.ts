@@ -89,13 +89,9 @@ export async function generateWeeklyPlaylist() {
       })).filter(track => track.uri)
     )
 
-    if (friendTracks.length === 0) {
-      throw new Error("No tracks found for this week")
-    }
-
-    // Auto-add recommendations if we have friend songs but fewer than 20 total
+    // Auto-add recommendations to reach 20 songs minimum (even if no friends have added songs yet)
     let allTracks = [...friendTracks]
-    if (friendTracks.length > 0 && friendTracks.length < 20) {
+    if (allTracks.length < 20) {
       try {
         const { generateRecommendations } = await import("./recommendations")
         const recommendations = await generateRecommendations()
@@ -119,6 +115,10 @@ export async function generateWeeklyPlaylist() {
     }
 
     const trackUris = allTracks.map(track => track.uri).filter(Boolean)
+
+    if (trackUris.length === 0) {
+      throw new Error("No tracks found for this week")
+    }
 
     let playlistId: string
     let playlistUrl: string
@@ -169,7 +169,7 @@ export async function generateWeeklyPlaylist() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: `SocialSpot - ${weekRange}`,
+            name: `Shareify - ${weekRange}`,
             description: `Weekly collaborative playlist from your music circle for ${weekRange}. ${allTracks.length > friendTracks.length ? `Includes ${allTracks.length - friendTracks.length} auto-recommended songs.` : ''}`,
             public: false,
           }),
@@ -198,6 +198,20 @@ export async function generateWeeklyPlaylist() {
       }
     }
 
+    // Fetch playlist image after creation/update
+    let playlistImage = null
+    try {
+      const playlistResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        headers: { Authorization: `Bearer ${session.accessToken}` },
+      })
+      if (playlistResponse.ok) {
+        const playlistData = await playlistResponse.json()
+        playlistImage = playlistData.images?.[0]?.url || null
+      }
+    } catch (error) {
+      console.error("Failed to fetch playlist image:", error)
+    }
+
     // Save/update playlist in database
     await prisma.weeklyPlaylist.upsert({
       where: {
@@ -210,8 +224,9 @@ export async function generateWeeklyPlaylist() {
         spotifyPlaylistId: playlistId,
         url: playlistUrl,
         trackCount: trackUris.length,
-        name: `SocialSpot - ${weekRange}`,
+        name: `Shareify - ${weekRange}`,
         description: `Weekly collaborative playlist from your music circle for ${weekRange}. ${allTracks.length > friendTracks.length ? `Includes ${allTracks.length - friendTracks.length} auto-recommended songs.` : ''}`,
+        image: playlistImage,
       },
       create: {
         weekStart,
@@ -219,8 +234,9 @@ export async function generateWeeklyPlaylist() {
         spotifyPlaylistId: playlistId,
         url: playlistUrl,
         trackCount: trackUris.length,
-        name: `SocialSpot - ${weekRange}`,
+        name: `Shareify - ${weekRange}`,
         description: `Weekly collaborative playlist from your music circle for ${weekRange}. ${allTracks.length > friendTracks.length ? `Includes ${allTracks.length - friendTracks.length} auto-recommended songs.` : ''}`,
+        image: playlistImage,
       },
     })
 

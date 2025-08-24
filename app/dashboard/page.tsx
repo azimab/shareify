@@ -353,7 +353,7 @@ function MainApp() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Music className="h-8 w-8 text-green-500" />
-              <h1 className="text-2xl font-bold text-white">SocialSpot</h1>
+              <h1 className="text-2xl font-bold text-white">Shareify</h1>
             </div>
 
              <div className="relative">
@@ -449,8 +449,22 @@ function MainApp() {
             </div>
 
             <div className="max-w-2xl mx-auto">
-              <div className="w-48 h-48 mx-auto bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center mb-6 hover:scale-105 transition-transform duration-300 shadow-lg">
-                <Music className="h-16 w-16 text-white" />
+              <div className="w-48 h-48 mx-auto rounded-lg mb-6 hover:scale-105 transition-transform duration-300 shadow-lg overflow-hidden">
+                {weeklyPlaylist?.image ? (
+                  <img 
+                    src={weeklyPlaylist.image}
+                    alt="Playlist Cover"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to gradient if Spotify image fails
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling!.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center ${weeklyPlaylist?.image ? 'hidden' : ''}`}>
+                  <Music className="h-16 w-16 text-white" />
+                </div>
               </div>
 
               <div className="text-center mb-8 space-y-4">
@@ -484,8 +498,22 @@ function MainApp() {
                     key={track.id}
                     className="flex items-center gap-4 p-4 bg-gray-800/40 border border-gray-700/50 rounded-lg border-l-4 border-l-green-500 hover:bg-gray-800/60 transition-all duration-200 hover:shadow-md"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Music className="h-6 w-6 text-gray-300" />
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {track.image ? (
+                        <img 
+                          src={track.image} 
+                          alt={`${track.album} cover`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to gradient if album image fails
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling!.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-full h-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center ${track.image ? 'hidden' : ''}`}>
+                        <Music className="h-6 w-6 text-gray-300" />
+                      </div>
                     </div>
                     <span className="text-gray-300 w-8 text-center font-medium text-lg">{index + 1}</span>
                     <div className="flex-1">

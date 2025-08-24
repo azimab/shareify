@@ -7,7 +7,7 @@ import AuthSessionProvider from "@/components/session-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "SocialSpot - Social Spotify Playlists",
+  title: "Shareify - Social Spotify Playlists",
   description: "Share weekly songs with friends and discover new music together",
   generator: "v0.dev",
 }

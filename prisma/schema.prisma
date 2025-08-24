@@ -89,6 +89,7 @@ model WeeklyPlaylist {
   url             String?
   name            String?
   description     String?
+  image           String?
   trackCount      Int      @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

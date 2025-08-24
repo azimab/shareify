@@ -52,7 +52,7 @@ export default function RootPage() {
                 <Music className="h-8 w-8 text-green-400" />
               </div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                SocialSpot
+                Shareify
               </h1>
             </div>
           </div>
