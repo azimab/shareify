@@ -46,6 +46,11 @@ async function getWeeklyPlaylist() {
   return getWeeklyPlaylist()
 }
 
+async function getPlaylistTracks() {
+  const { getPlaylistTracks } = await import("@/lib/actions/playlist-generation")
+  return getPlaylistTracks()
+}
+
 // Friends management functions
 async function getFriends() {
   const { getFriends } = await import("@/lib/actions/friends")
@@ -142,7 +147,7 @@ function MainApp() {
       try {
         const [selection, tracks, playlist, friendsList, suggestions] = await Promise.all([
           getWeeklySelection(),
-          getCurrentWeekTracks(),
+          getPlaylistTracks(), // Use playlist tracks instead of just friend tracks
           getWeeklyPlaylist(),
           getFriends(),
           getFriendSuggestions(),
@@ -235,9 +240,13 @@ function MainApp() {
       setIsGeneratingPlaylist(true)
       const result = await generateWeeklyPlaylist()
       if (result.success) {
-        // Refresh playlist data
-        const playlist = await getWeeklyPlaylist()
+        // Refresh playlist data and tracks
+        const [playlist, tracks] = await Promise.all([
+          getWeeklyPlaylist(),
+          getPlaylistTracks()
+        ])
         setWeeklyPlaylist(playlist)
+        setCurrentWeekTracks(tracks)
       }
     } catch (error) {
       console.error("Failed to generate playlist:", error)
@@ -443,7 +452,12 @@ function MainApp() {
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-bold text-white">This Week's Playlist</h2>
               <p className="text-gray-300 text-lg">
-                Week of January 6, 2025 • {currentWeekTracks.length} songs from friends
+                Week of January 6, 2025 • {currentWeekTracks.length} songs 
+                {currentWeekTracks.some((track: any) => track.isRecommendation) && (
+                  <span className="text-purple-300">
+                    ({currentWeekTracks.filter((track: any) => !track.isRecommendation).length} from friends + {currentWeekTracks.filter((track: any) => track.isRecommendation).length} recommended)
+                  </span>
+                )}
                 {isSaving && <span className="ml-2 text-yellow-400">(saving...)</span>}
               </p>
             </div>
@@ -522,9 +536,13 @@ function MainApp() {
                     </div>
                     <Badge
                       variant="secondary"
-                      className="rounded-md bg-gray-700/80 text-gray-200 border border-gray-600 px-3 py-1"
+                      className={`rounded-md px-3 py-1 ${
+                        track.isRecommendation 
+                          ? "bg-purple-600/80 text-purple-100 border border-purple-500" 
+                          : "bg-gray-700/80 text-gray-200 border border-gray-600"
+                      }`}
                     >
-                      from {track.friend}
+                      {track.isRecommendation ? "🤖 Recommended" : `👤 ${track.friend}`}
                     </Badge>
                     <span className="text-gray-300 text-base font-medium min-w-[3rem] text-right">
                       {track.duration}

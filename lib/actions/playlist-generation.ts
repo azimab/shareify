@@ -277,3 +277,115 @@ export async function getWeeklyPlaylist() {
     return null
   }
 }
+
+export async function getPlaylistTracks() {
+  const session = await getServerSession(authOptions)
+  if (!session?.userId || !session.accessToken) {
+    return []
+  }
+
+  const weekStart = getWeekStart()
+
+  try {
+    // Get the weekly playlist
+    const playlist = await prisma.weeklyPlaylist.findUnique({
+      where: {
+        weekStart_ownerUserId: {
+          weekStart,
+          ownerUserId: session.userId,
+        },
+      },
+    })
+
+    if (!playlist?.spotifyPlaylistId) {
+      // If no playlist exists, return friends' tracks only
+      const { getCurrentWeekTracks } = await import("./weekly-selections")
+      return await getCurrentWeekTracks()
+    }
+
+    // Fetch actual playlist tracks from Spotify
+    const playlistResponse = await fetch(
+      `https://api.spotify.com/v1/playlists/${playlist.spotifyPlaylistId}/tracks?limit=50`,
+      {
+        headers: { Authorization: `Bearer ${session.accessToken}` },
+      }
+    )
+
+    if (!playlistResponse.ok) {
+      console.error("Failed to fetch playlist tracks from Spotify")
+      return []
+    }
+
+    const playlistData = await playlistResponse.json()
+    const tracks = playlistData.items
+
+    // Get friends' selections to identify which tracks are from friends vs recommendations
+    const friendships = await prisma.friendship.findMany({
+      where: {
+        OR: [
+          { followerId: session.userId },
+          { followingId: session.userId },
+        ],
+      },
+    })
+
+    const friendIds = new Set<string>()
+    friendships.forEach((friendship) => {
+      if (friendship.followerId === session.userId) {
+        friendIds.add(friendship.followingId)
+      } else {
+        friendIds.add(friendship.followerId)
+      }
+    })
+
+    const friendSelections = await prisma.weeklySelection.findMany({
+      where: {
+        userId: { in: Array.from(friendIds) },
+        weekStart,
+      },
+      include: {
+        tracks: true,
+        user: true,
+      },
+    })
+
+    const friendTrackIds = new Set(
+      friendSelections.flatMap(selection => 
+        selection.tracks.map(track => track.spotifyTrackId)
+      )
+    )
+
+    // Map Spotify tracks to our format
+    return tracks
+      .filter((item: any) => item.track && !item.track.is_local)
+      .map((item: any, index: number) => {
+        const track = item.track
+        const isFromFriend = friendTrackIds.has(track.id)
+        
+        // Find which friend recommended this track
+        let friendName = 'Recommendation'
+        if (isFromFriend) {
+          const friendSelection = friendSelections.find(selection =>
+            selection.tracks.some(t => t.spotifyTrackId === track.id)
+          )
+          friendName = friendSelection?.user.displayName || 'Unknown Friend'
+        }
+
+        return {
+          id: track.id,
+          title: track.name,
+          artist: track.artists?.[0]?.name || 'Unknown',
+          album: track.album?.name,
+          image: track.album?.images?.[0]?.url,
+          uri: track.uri,
+          duration: track.duration_ms ? `${Math.floor(track.duration_ms / 60000)}:${String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}` : '3:20',
+          friend: friendName,
+          addedAt: new Date(item.added_at || Date.now()),
+          isRecommendation: !isFromFriend
+        }
+      })
+  } catch (error) {
+    console.error("Failed to get playlist tracks:", error)
+    return []
+  }
+}

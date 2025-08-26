@@ -49,97 +49,71 @@ export default function RootPage() {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 py-16">
         {/* Hero Section */}
-        <div className="max-w-4xl mb-20">
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Your social replacement for Discover Weekly
+        <div className="max-w-4xl mb-24 text-center">
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+            Friends > Algorithms
           </h2>
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            Tired of Spotify's algorithm recommending the same songs? Get music recommendations from your friends instead. 
-            Share 3 songs weekly, discover what your friends are listening to, and get personalized playlists based on real human taste.
+          <p className="text-2xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+            Get music recommendations from your friends instead of robots.
           </p>
           <Button
             onClick={() => signIn("spotify")}
-            className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 text-lg font-medium transition-colors"
+            className="bg-green-600 hover:bg-green-500 text-white px-10 py-5 text-xl font-medium transition-colors rounded-full"
           >
             <SpotifyIcon />
-            <span className="ml-3">Connect Spotify</span>
+            <span className="ml-3">Start Discovering</span>
           </Button>
         </div>
 
         {/* How it Works */}
-        <div className="mb-20">
-          <h3 className="text-2xl font-bold text-white mb-12">How it works</h3>
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">1</div>
-              <h4 className="text-xl font-semibold text-white">Pick your weekly songs</h4>
-              <p className="text-gray-400">Choose 1-3 songs you're loving this week. Could be anything - new discoveries, old favorites, guilty pleasures.</p>
-            </div>
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">2</div>
-              <h4 className="text-xl font-semibold text-white">See what friends picked</h4>
-              <p className="text-gray-400">Browse through your friends' weekly picks. Discover new artists, genres, and songs you never would have found otherwise.</p>
-            </div>
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">3</div>
-              <h4 className="text-xl font-semibold text-white">Get your playlist</h4>
-              <p className="text-gray-400">We create a Spotify playlist combining your friends' picks plus smart recommendations based on their taste.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Why Better Than Algorithms */}
-        <div className="mb-20">
-          <h3 className="text-2xl font-bold text-white mb-8">Why friends > algorithms</h3>
-          <div className="grid md:grid-cols-2 gap-12">
+        <div className="mb-24">
+          <div className="grid md:grid-cols-3 gap-16 text-center">
             <div className="space-y-6">
-              <div className="space-y-2">
-                <h4 className="text-lg font-semibold text-white">Real human curation</h4>
-                <p className="text-gray-400">Your friends know good music. They have context, emotions, and stories behind their picks that no algorithm can match.</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-lg font-semibold text-white">Break out of your bubble</h4>
-                <p className="text-gray-400">Algorithms keep you in the same genres. Friends introduce you to completely new styles of music you'd never discover alone.</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-lg font-semibold text-white">Social connection</h4>
-                <p className="text-gray-400">Music is social. Share discoveries, discuss songs, and bond over new finds with the people who matter most.</p>
-              </div>
+              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto">1</div>
+              <h4 className="text-2xl font-semibold text-white">Share 3 songs</h4>
+              <p className="text-gray-400 text-lg">Pick your weekly favorites</p>
             </div>
-            <div className="bg-gray-900 p-6 rounded-lg">
-              <h4 className="text-lg font-semibold text-white mb-4">What you get every week:</h4>
-              <ul className="space-y-3 text-gray-300">
-                <li className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Fresh playlist with friends' picks
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Smart recommendations based on group taste
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  See who recommended what
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Discover new artists and genres
-                </li>
-              </ul>
+            <div className="space-y-6">
+              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto">2</div>
+              <h4 className="text-2xl font-semibold text-white">Discover together</h4>
+              <p className="text-gray-400 text-lg">See what friends are loving</p>
+            </div>
+            <div className="space-y-6">
+              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto">3</div>
+              <h4 className="text-2xl font-semibold text-white">Get your playlist</h4>
+              <p className="text-gray-400 text-lg">Friends' picks + smart recommendations</p>
             </div>
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="text-center py-12">
-          <h3 className="text-3xl font-bold text-white mb-4">Ready to discover better music?</h3>
-          <p className="text-gray-400 mb-8">Join your friends and start sharing music that actually matters.</p>
+        {/* Features */}
+        <div className="bg-gray-900 rounded-2xl p-12 text-center">
+          <h3 className="text-3xl font-bold text-white mb-8">Better than Spotify's algorithm</h3>
+          <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            <div className="space-y-3">
+              <h4 className="text-xl font-semibold text-green-400">🎯 Real taste</h4>
+              <p className="text-gray-300">Friends know good music</p>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-xl font-semibold text-green-400">🌟 New genres</h4>
+              <p className="text-gray-300">Break out of your bubble</p>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-xl font-semibold text-green-400">🤝 Social connection</h4>
+              <p className="text-gray-300">Music brings people together</p>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-xl font-semibold text-green-400">🎵 Fresh weekly</h4>
+              <p className="text-gray-300">New discoveries every week</p>
+            </div>
+          </div>
+          
           <Button
             onClick={() => signIn("spotify")}
-            className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 text-lg font-medium transition-colors"
+            className="bg-green-600 hover:bg-green-500 text-white px-10 py-5 text-xl font-medium transition-colors rounded-full mt-12"
           >
             <SpotifyIcon />
-            <span className="ml-3">Get Started with Spotify</span>
+            <span className="ml-3">Try it now</span>
           </Button>
         </div>
       </main>

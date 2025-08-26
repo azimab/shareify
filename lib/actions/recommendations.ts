@@ -197,8 +197,12 @@ export async function generateRecommendations(): Promise<RecommendationTrack[]> 
       }
     }
 
-    // Sort by score and return top recommendations
-    return recommendations
+    // Remove duplicates and sort by score
+    const uniqueRecommendations = recommendations.filter((track, index, self) => 
+      index === self.findIndex(t => t.id === track.id)
+    )
+    
+    return uniqueRecommendations
       .sort((a, b) => b.score - a.score)
       .slice(0, 20) // Top 20 recommendations
       
