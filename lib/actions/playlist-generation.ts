@@ -96,8 +96,12 @@ export async function generateWeeklyPlaylist() {
         const { generateRecommendations } = await import("./recommendations")
         const recommendations = await generateRecommendations()
         
+        // Create a set of friend track IDs to avoid duplicates
+        const friendTrackIds = new Set(friendTracks.map(track => track.uri))
+        
         const neededCount = 20 - friendTracks.length
         const recommendedTracks = recommendations
+          .filter(rec => rec.uri && !friendTrackIds.has(rec.uri)) // Exclude duplicates
           .slice(0, neededCount)
           .map(rec => ({
             uri: rec.uri,
@@ -275,6 +279,99 @@ export async function getWeeklyPlaylist() {
   } catch (error) {
     console.error("Failed to get weekly playlist:", error)
     return null
+  }
+}
+
+export async function getHistoricalPlaylists() {
+  const session = await getServerSession(authOptions)
+  if (!session?.userId) {
+    return []
+  }
+
+  try {
+    const playlists = await prisma.weeklyPlaylist.findMany({
+      where: {
+        ownerUserId: session.userId,
+      },
+      orderBy: {
+        weekStart: 'desc',
+      },
+      take: 12, // Last 12 weeks
+    })
+
+    return playlists.map(playlist => ({
+      id: playlist.id,
+      weekStart: playlist.weekStart,
+      weekRange: formatWeekRange(playlist.weekStart),
+      name: playlist.name,
+      description: playlist.description,
+      image: playlist.image,
+      url: playlist.url,
+      trackCount: playlist.trackCount,
+      spotifyPlaylistId: playlist.spotifyPlaylistId,
+      createdAt: playlist.createdAt,
+    }))
+  } catch (error) {
+    console.error("Failed to get historical playlists:", error)
+    return []
+  }
+}
+
+export async function getHistoricalPlaylistTracks(playlistId: string) {
+  const session = await getServerSession(authOptions)
+  if (!session?.userId || !session.accessToken) {
+    return []
+  }
+
+  try {
+    // Get the playlist from database
+    const playlist = await prisma.weeklyPlaylist.findFirst({
+      where: {
+        id: playlistId,
+        ownerUserId: session.userId, // Ensure user owns this playlist
+      },
+    })
+
+    if (!playlist?.spotifyPlaylistId) {
+      return []
+    }
+
+    // Fetch tracks from Spotify
+    const playlistResponse = await fetch(
+      `https://api.spotify.com/v1/playlists/${playlist.spotifyPlaylistId}/tracks?limit=50`,
+      {
+        headers: { Authorization: `Bearer ${session.accessToken}` },
+      }
+    )
+
+    if (!playlistResponse.ok) {
+      console.error("Failed to fetch historical playlist tracks from Spotify")
+      return []
+    }
+
+    const playlistData = await playlistResponse.json()
+    const tracks = playlistData.items
+
+    // For historical playlists, we don't need to distinguish friend vs recommendation
+    // since they're already generated
+    return tracks
+      .filter((item: any) => item.track && !item.track.is_local)
+      .map((item: any, index: number) => {
+        const track = item.track
+        return {
+          id: track.id,
+          title: track.name,
+          artist: track.artists?.[0]?.name || 'Unknown',
+          album: track.album?.name,
+          image: track.album?.images?.[0]?.url,
+          uri: track.uri,
+          duration: track.duration_ms ? `${Math.floor(track.duration_ms / 60000)}:${String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}` : '3:20',
+          addedAt: new Date(item.added_at || Date.now()),
+        }
+      })
+  } catch (error) {
+    console.error("Failed to get historical playlist tracks:", error)
+    return []
   }
 }
 

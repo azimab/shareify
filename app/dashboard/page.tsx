@@ -51,6 +51,16 @@ async function getPlaylistTracks() {
   return getPlaylistTracks()
 }
 
+async function getHistoricalPlaylists() {
+  const { getHistoricalPlaylists } = await import("@/lib/actions/playlist-generation")
+  return getHistoricalPlaylists()
+}
+
+async function getHistoricalPlaylistTracks(playlistId: string) {
+  const { getHistoricalPlaylistTracks } = await import("@/lib/actions/playlist-generation")
+  return getHistoricalPlaylistTracks(playlistId)
+}
+
 // Friends management functions
 async function getFriends() {
   const { getFriends } = await import("@/lib/actions/friends")
@@ -126,6 +136,9 @@ function MainApp() {
   const [isSearchingFriends, setIsSearchingFriends] = useState(false)
   const [friendSuggestions, setFriendSuggestions] = useState([])
   const [isLoadingFriends, setIsLoadingFriends] = useState(true)
+  const [historicalPlaylists, setHistoricalPlaylists] = useState([])
+  const [selectedHistoricalPlaylist, setSelectedHistoricalPlaylist] = useState<any>(null)
+  const [historicalPlaylistTracks, setHistoricalPlaylistTracks] = useState([])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -145,12 +158,13 @@ function MainApp() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [selection, tracks, playlist, friendsList, suggestions] = await Promise.all([
+        const [selection, tracks, playlist, friendsList, suggestions, historical] = await Promise.all([
           getWeeklySelection(),
           getPlaylistTracks(), // Use playlist tracks instead of just friend tracks
           getWeeklyPlaylist(),
           getFriends(),
           getFriendSuggestions(),
+          getHistoricalPlaylists(),
         ])
 
         if (selection) {
@@ -170,6 +184,7 @@ function MainApp() {
         setWeeklyPlaylist(playlist)
         setFriends(friendsList)
         setFriendSuggestions(suggestions)
+        setHistoricalPlaylists(historical)
       } catch (error) {
         console.error("Failed to load data:", error)
       } finally {
@@ -182,11 +197,16 @@ function MainApp() {
     }
   }, [session?.userId])
 
-  const pastPlaylists = [
-    { id: 1, week: "Dec 30, 2024", songs: 15, friends: 5 },
-    { id: 2, week: "Dec 23, 2024", songs: 12, friends: 4 },
-    { id: 3, week: "Dec 16, 2024", songs: 18, friends: 6 },
-  ]
+  // Function to handle historical playlist selection
+  const handleHistoricalPlaylistClick = async (playlist: any) => {
+    try {
+      setSelectedHistoricalPlaylist(playlist)
+      const tracks = await getHistoricalPlaylistTracks(playlist.id)
+      setHistoricalPlaylistTracks(tracks)
+    } catch (error) {
+      console.error("Failed to load historical playlist tracks:", error)
+    }
+  }
 
   const addSong = async (song: TrackData) => {
     if (selectedSongs.length < 3) {
@@ -842,29 +862,49 @@ function MainApp() {
             </div>
 
             <div className="max-w-2xl mx-auto space-y-4">
-              {pastPlaylists.map((playlist) => (
+              {historicalPlaylists.map((playlist: any) => (
                 <Card
                   key={playlist.id}
-                  className="bg-gray-800/40 border border-gray-700/50 rounded-lg hover:bg-gray-800/60 transition-all duration-200 hover:shadow-lg"
+                  className="bg-gray-800/40 border border-gray-700/50 rounded-lg hover:bg-gray-800/60 transition-all duration-200 hover:shadow-lg cursor-pointer"
+                  onClick={() => handleHistoricalPlaylistClick(playlist)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
-                        <Music className="h-8 w-8 text-white" />
+                      <div className="w-16 h-16 rounded-lg overflow-hidden shadow-md">
+                        {playlist.image ? (
+                          <img 
+                            src={playlist.image} 
+                            alt="Playlist Cover"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling!.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center ${playlist.image ? 'hidden' : ''}`}>
+                          <Music className="h-8 w-8 text-white" />
+                        </div>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-white text-lg">Week of {playlist.week}</h3>
+                        <h3 className="font-semibold text-white text-lg">{playlist.weekRange}</h3>
                         <p className="text-gray-300 text-base">
-                          {playlist.songs} songs from {playlist.friends} friends
+                          {playlist.trackCount} songs
                         </p>
                       </div>
-                      <Button
-                        variant="outline"
-                        className="rounded-lg border-green-500 text-green-400 hover:bg-green-500 hover:text-white bg-transparent"
-                      >
-                        <SpotifyIcon />
-                        <span className="ml-2">Play</span>
-                      </Button>
+                      {playlist.url && (
+                        <Button
+                          variant="outline"
+                          className="rounded-lg border-green-500 text-green-400 hover:bg-green-500 hover:text-white bg-transparent"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(playlist.url, '_blank')
+                          }}
+                        >
+                          <SpotifyIcon />
+                          <span className="ml-2">Play</span>
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
