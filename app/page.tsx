@@ -35,86 +35,100 @@ export default function RootPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+      <header className="border-b border-gray-800/50 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center gap-3">
-            <Music className="h-7 w-7 text-green-500" />
-            <h1 className="text-2xl font-bold text-white">Shareify</h1>
+            <Music className="h-8 w-8 text-green-500" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
+              Shareify
+            </h1>
           </div>
+          
+          {/* Sign In Button */}
+          <Button
+            onClick={() => signIn("spotify")}
+            variant="outline"
+            className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white transition-colors"
+          >
+            <SpotifyIcon />
+            <span className="ml-2">Sign In</span>
+          </Button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-16">
-        {/* Hero Section */}
-        <div className="max-w-4xl mb-24 text-center">
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-            Friends > Algorithms
-          </h2>
-          <p className="text-2xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto">
-            Get music recommendations from your friends instead of robots.
-          </p>
-          <Button
-            onClick={() => signIn("spotify")}
-            className="bg-green-600 hover:bg-green-500 text-white px-10 py-5 text-xl font-medium transition-colors rounded-full"
-          >
-            <SpotifyIcon />
-            <span className="ml-3">Start Discovering</span>
-          </Button>
-        </div>
+      {/* Main Content - Centered and Compact */}
+      <main className="flex-1 flex items-center justify-center px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Hero Section */}
+          <div className="mb-16">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Friends
+              </span>
+              <span className="text-gray-500 mx-4">></span>
+              <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
+                Algorithms
+              </span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Get music recommendations from your friends instead of robots.
+            </p>
+            <Button
+              onClick={() => signIn("spotify")}
+              className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white px-8 py-4 text-lg font-medium transition-all duration-300 rounded-full shadow-lg hover:shadow-green-500/25"
+            >
+              <SpotifyIcon />
+              <span className="ml-3">Start Discovering</span>
+            </Button>
+          </div>
 
-        {/* How it Works */}
-        <div className="mb-24">
-          <div className="grid md:grid-cols-3 gap-16 text-center">
-            <div className="space-y-6">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto">1</div>
-              <h4 className="text-2xl font-semibold text-white">Share 3 songs</h4>
-              <p className="text-gray-400 text-lg">Pick your weekly favorites</p>
+          {/* How it Works - Compact */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="space-y-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto">
+                1
+              </div>
+              <h4 className="text-lg font-semibold text-white">Share 3 songs</h4>
+              <p className="text-gray-400 text-sm">Pick your weekly favorites</p>
             </div>
-            <div className="space-y-6">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto">2</div>
-              <h4 className="text-2xl font-semibold text-white">Discover together</h4>
-              <p className="text-gray-400 text-lg">See what friends are loving</p>
+            <div className="space-y-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto">
+                2
+              </div>
+              <h4 className="text-lg font-semibold text-white">Discover together</h4>
+              <p className="text-gray-400 text-sm">See what friends are loving</p>
             </div>
-            <div className="space-y-6">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto">3</div>
-              <h4 className="text-2xl font-semibold text-white">Get your playlist</h4>
-              <p className="text-gray-400 text-lg">Friends' picks + smart recommendations</p>
+            <div className="space-y-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto">
+                3
+              </div>
+              <h4 className="text-lg font-semibold text-white">Get your playlist</h4>
+              <p className="text-gray-400 text-sm">Friends' picks + recommendations</p>
             </div>
           </div>
-        </div>
 
-        {/* Features */}
-        <div className="bg-gray-900 rounded-2xl p-12 text-center">
-          <h3 className="text-3xl font-bold text-white mb-8">Better than Spotify's algorithm</h3>
-          <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <div className="space-y-3">
-              <h4 className="text-xl font-semibold text-green-400">🎯 Real taste</h4>
-              <p className="text-gray-300">Friends know good music</p>
+          {/* Features - Compact */}
+          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="space-y-2">
+              <h4 className="text-lg font-semibold text-green-400">Real taste</h4>
+              <p className="text-gray-400 text-sm">Friends know good music</p>
             </div>
-            <div className="space-y-3">
-              <h4 className="text-xl font-semibold text-green-400">🌟 New genres</h4>
-              <p className="text-gray-300">Break out of your bubble</p>
+            <div className="space-y-2">
+              <h4 className="text-lg font-semibold text-green-400">New genres</h4>
+              <p className="text-gray-400 text-sm">Break out of your bubble</p>
             </div>
-            <div className="space-y-3">
-              <h4 className="text-xl font-semibold text-green-400">🤝 Social connection</h4>
-              <p className="text-gray-300">Music brings people together</p>
+            <div className="space-y-2">
+              <h4 className="text-lg font-semibold text-green-400">Social connection</h4>
+              <p className="text-gray-400 text-sm">Music brings people together</p>
             </div>
-            <div className="space-y-3">
-              <h4 className="text-xl font-semibold text-green-400">🎵 Fresh weekly</h4>
-              <p className="text-gray-300">New discoveries every week</p>
+            <div className="space-y-2">
+              <h4 className="text-lg font-semibold text-green-400">Fresh weekly</h4>
+              <p className="text-gray-400 text-sm">New discoveries every week</p>
             </div>
           </div>
-          
-          <Button
-            onClick={() => signIn("spotify")}
-            className="bg-green-600 hover:bg-green-500 text-white px-10 py-5 text-xl font-medium transition-colors rounded-full mt-12"
-          >
-            <SpotifyIcon />
-            <span className="ml-3">Try it now</span>
-          </Button>
         </div>
       </main>
     </div>
